@@ -70,6 +70,7 @@ module ActiveRDF
       super()
       ActiveRdfLogger::log_info "Initializing Sesame Adapter with params #{params.to_s}", self
 
+      @contexts = true
       @reads = true
       @writes = true
 
