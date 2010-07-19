@@ -155,8 +155,7 @@ module ActiveRDF
       check_input = [s,p,o]
       raise ActiveRdfError, "cannot add triple with nil or blank node subject, predicate, or object" if check_input.any? {|r| r.nil? || r.is_a?(Symbol) }
 
-      params = activerdf_to_sesame(s, p, o, c)
-      @db.add(params[0], params[1], params[2], wrap_contexts(c))
+      @db.add(*activerdf_to_sesame(s, p, o, c))
       true
     rescue Exception => e
       raise ActiveRdfError, "Sesame add triple failed: #{e.message}"
@@ -370,7 +369,7 @@ module ActiveRDF
       }
 
       # wrap Context
-      params << wrap_contexts(c) unless (c.nil?)
+      params << wrap_contexts(c)
 
       params
     end
@@ -381,7 +380,7 @@ module ActiveRDF
     def wrap(item, use_nil = false)
       result = 
       if(item.respond_to?(:uri))
-        if (item.uri.to_s[0..4].match(/http:/).nil?)
+        if (item.uri.to_s[0..4].match(/http:/i).nil?)
           @valueFactory.createLiteral(item.uri.to_s)
         else
           @valueFactory.createURI(item.uri.to_s)
