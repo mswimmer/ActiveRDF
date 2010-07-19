@@ -11,9 +11,9 @@ module ActiveRDF
 
     bool_accessor :distinct, :ask, :select, :count, :keyword, :all_types
 
-  # Creates a new query. You may pass a different class that is used for "resource"
-  # type objects instead of RDFS::Resource
-  def initialize(resource_type = RDFS::Resource)
+    # Creates a new query. You may pass a different class that is used for "resource"
+    # type objects instead of RDFS::Resource
+    def initialize(resource_type = RDFS::Resource)
       @distinct = false
       @select_clauses = []
       @where_clauses = []
@@ -25,41 +25,40 @@ module ActiveRDF
       @reasoning = nil
       @all_types = false
       @nil_clause_idx = -1
-    set_resource_class(resource_type)
+      set_resource_class(resource_type)
     end
 
-  # This returns the class that is be used for resources, by default this
-  # is RDFS::Resource
-  def resource_class
-    @resource_class ||= RDFS::Resource
-  end
+    # This returns the class that is be used for resources, by default this
+    # is RDFS::Resource
+    def resource_class
+      @resource_class ||= RDFS::Resource
+    end
 
-  # Sets the resource_class. Any class may be used, however it is required
-  # that it can be created using the uri of the resource as it's only 
-  # parameter and that it has an 'uri' property
-  def set_resource_class(resource_class)
-    raise(ArgumentError, "resource_class must be a class") unless(resource_class.class == Class)
+    # Sets the resource_class. Any class may be used, however it is required
+    # that it can be created using the uri of the resource as it's only 
+    # parameter and that it has an 'uri' property
+    def set_resource_class(resource_class)
+      raise(ArgumentError, "resource_class must be a class") unless(resource_class.class == Class)
 
-    test = resource_class.new("http://uri")
-    raise(ArgumentError, "Must have an uri property") unless(test.respond_to?(:uri))
-    @resource_class = resource_class
-  end
+      test = resource_class.new("http://uri")
+      raise(ArgumentError, "Must have an uri property") unless(test.respond_to?(:uri))
+      @resource_class = resource_class
+    end
 
     def initialize_copy(orig)
       # dup the instance variables so we're not messing with the original query's values
       instance_variables.each do |iv|
         orig_val = instance_variable_get(iv)
         case orig_val
-          when Array,Hash
-            instance_variable_set(iv,orig_val.dup)
+        when Array,Hash
+          instance_variable_set(iv,orig_val.dup)
         end
       end
     end
 
-
     # Clears the select clauses
     def clear_select
-    ActiveRdfLogger::log_debug "Cleared select clause", self
+      ActiveRdfLogger::log_debug "Cleared select clause", self
       @select_clauses = []
       @distinct = false
     end
@@ -84,9 +83,11 @@ module ActiveRDF
       @reasoning = truefalse(bool)
       self
     end
+
     def reasoning=(bool)
       self.reasoning(bool)
     end
+
     def reasoning?
       @reasoning
     end
@@ -114,7 +115,7 @@ module ActiveRDF
     # 
     def sort *s
       s.each do |var| 
-         
+
         @sort_clauses << [var,:asc]
       end
       self
@@ -142,10 +143,10 @@ module ActiveRDF
     # variable is Ruby symbol that appears in select/where clause, regex is Ruby
     # regular expression
     def regexp(variable, regexp)
-    raise(ActiveRdfError, "variable must be a symbol") unless variable.is_a? Symbol
-    regexp = regexp.source if(regexp.is_a?(Regexp))
+      raise(ActiveRdfError, "variable must be a symbol") unless variable.is_a? Symbol
+      regexp = regexp.source if(regexp.is_a?(Regexp))
 
-    filter(variable, :regexp, regexp)
+      filter(variable, :regexp, regexp)
     end
     alias :regex :regexp
 
@@ -173,7 +174,7 @@ module ActiveRDF
     end
 
     # Adds where clauses (s,p,o) where each constituent is either variable (:s) or
-  # an RDFS::Resource (or equivalent class). Keyword queries are specified with the special :keyword 
+    # an RDFS::Resource (or equivalent class). Keyword queries are specified with the special :keyword 
     # symbol: Query.new.select(:s).where(:s, :keyword, 'eyal')
     def where s,p,o,c=nil
       case p
@@ -190,13 +191,13 @@ module ActiveRDF
         # generator.
         # if you construct this query manually, you shouldn't! if your select
         # variable happens to be in one of the removed clauses: tough luck.
-      unless (s.respond_to?(:uri) or s.is_a?(Symbol)) and (s.class != RDFS::BNode)
-        raise(ActiveRdfError, "Cannot add a where clause with s #{s}: s must be a resource or a variable, is a #{s.class.name}")
+        unless (s.respond_to?(:uri) or s.is_a?(Symbol)) and (s.class != RDFS::BNode)
+          raise(ActiveRdfError, "Cannot add a where clause with s #{s}: s must be a resource or a variable, is a #{s.class.name}")
         end
-      unless (p.respond_to?(:uri) or p.is_a?(Symbol)) and (s.class != RDFS::BNode)
-        raise(ActiveRdfError, "Cannot add a where clause with p #{p}: p must be a resource or a variable, is a #{p.class.name}")
+        unless (p.respond_to?(:uri) or p.is_a?(Symbol)) and (s.class != RDFS::BNode)
+          raise(ActiveRdfError, "Cannot add a where clause with p #{p}: p must be a resource or a variable, is a #{p.class.name}")
         end
-      raise(ActiveRdfErrror, "Cannot add a where clause where o is a blank node") if(o.class == RDFS::BNode)
+        raise(ActiveRdfErrror, "Cannot add a where clause where o is a blank node") if(o.class == RDFS::BNode)
 
         @where_clauses << [s,p,o,c]
       end
@@ -247,7 +248,7 @@ module ActiveRDF
 
     # Returns SPARQL serialisation of query
     def to_sp
-    require 'queryengine/query2sparql' unless(defined?(Query2SPARQL))
+      require 'queryengine/query2sparql' unless(defined?(Query2SPARQL))
       Query2SPARQL.translate(self)
     end
 
@@ -288,12 +289,12 @@ module ActiveRDF
       @where_clauses = new_where_clauses
     end
 
-  #  def reasoned_query
-  #    new_where_clauses = []
-  #    @where_clauses.each do |s,p,o,c|
-  #      # other reasoning should be added here
-  #    end
-  #    @where_clauses += new_where_clauses
-  #  end
+    #  def reasoned_query
+    #    new_where_clauses = []
+    #    @where_clauses.each do |s,p,o,c|
+    #      # other reasoning should be added here
+    #    end
+    #    @where_clauses += new_where_clauses
+    #  end
   end
 end

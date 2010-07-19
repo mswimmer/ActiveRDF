@@ -27,6 +27,7 @@ class ActiveRdfLogger
 
     # Assign a new logger
     def logger=(logger)
+      raise(ArgumentError, "Empty Logger") if(logger == nil)
       @logger = logger
       @native_logger = false
     end
@@ -55,8 +56,8 @@ class ActiveRdfLogger
     end
 
     def get_active_rdf_logger
-      if(defined?(RAILS_DEFAULT_LOGGER) && RAILS_DEFAULT_LOGGER)
-        RAILS_DEFAULT_LOGGER
+      if(defined?(Rails) && !Rails.logger.nil?)
+        Rails.logger
       else
         @native_logger = true
 
